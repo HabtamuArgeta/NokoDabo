@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from bakery import views as bakery_views  # <-- make sure this line exists
+from bakery import views as bakery_views  
 
 urlpatterns = [
     path('admin/', admin.site.urls),
