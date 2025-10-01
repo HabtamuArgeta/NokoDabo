@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{% if user.is_superuser %}Noko Dabo Admin Portal{% elif user.is_staff %}Noko Dabo Staff Portal{% else %}Welcome to Noko Dabo{% endif %}{% endblock %}
+
+{% block branding %}
+<h1 style="font-weight: bold;">
+    {% if user.is_superuser %}
+        Noko Dabo Admin Portal
+    {% elif user.is_staff %}
+        Noko Dabo Staff Portal
+    {% else %}
+        Welcome to Noko Dabo
+    {% endif %}
+</h1>
+{% endblock %}
