@@ -2,7 +2,8 @@ from django.contrib import admin
 from .forms import InventoryForm, StockTransactionForm
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin, GroupAdmin as DefaultGroupAdmin
 from django.contrib.auth.models import User, Group
-from .models import Bread, Injera, WheatFlour, Yeast, Enhancer, Branch, Inventory, StockTransaction
+from .models import Bread, Injera, WheatFlour, Yeast, Enhancer, Inventory, StockTransaction
+from branches.models import Branch  # <-- centralized branch
 
 # ------------------- Bakery Models -------------------
 @admin.register(Bread)
@@ -38,12 +39,7 @@ class EnhancerAdmin(admin.ModelAdmin):
     search_fields = ("type",)
 
 
-@admin.register(Branch)
-class BranchAdmin(admin.ModelAdmin):
-    list_display = ('name', 'location', 'created_at')
-    search_fields = ('name', 'location')
-
-
+# ------------------- Inventory & StockTransaction -------------------
 @admin.register(Inventory)
 class InventoryAdmin(admin.ModelAdmin):
     form = InventoryForm
@@ -86,7 +82,6 @@ class SuperuserOnlyAdminMixin:
 
 # ------------------- Custom User Admin -------------------
 class CustomUserAdmin(SuperuserOnlyAdminMixin, DefaultUserAdmin):
-    # Keep your existing functionality intact
     def get_readonly_fields(self, request, obj=None):
         readonly = list(super().get_readonly_fields(request, obj))
         if not request.user.is_superuser:
@@ -122,7 +117,6 @@ class CustomUserAdmin(SuperuserOnlyAdminMixin, DefaultUserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
-# Only superusers can access Groups
 class CustomGroupAdmin(SuperuserOnlyAdminMixin, DefaultGroupAdmin):
     pass
 
