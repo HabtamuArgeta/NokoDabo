@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from .models import Bread, Injera, WheatFlour, Yeast, Enhancer
-from .forms import StockTransactionForm
 
 def home(request):
     return render(request, "home.html")
