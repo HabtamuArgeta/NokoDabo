@@ -2,7 +2,7 @@ import os
 import django
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
-app_name = 'branches'
+app_name = 'StockTransaction'
 
 # ---- Step 1: Create app folder if it doesn't exist ----
 app_path = os.path.join(project_dir, app_name)
