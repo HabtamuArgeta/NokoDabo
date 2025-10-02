@@ -2,7 +2,7 @@ import os
 import django
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
-app_name = 'bakery'
+app_name = 'branches'
 
 # ---- Step 1: Create app folder if it doesn't exist ----
 app_path = os.path.join(project_dir, app_name)
@@ -27,7 +27,7 @@ for f in files:
         print(f"{f} already exists")
 
 # ---- Step 3: Add app to INSTALLED_APPS ----
-settings_file = os.path.join(project_dir, 'myproject', 'settings.py')
+settings_file = os.path.join(project_dir, 'NokoDabo', 'settings.py')
 with open(settings_file, 'r') as file:
     content = file.read()
 
@@ -44,7 +44,7 @@ else:
     print(f"'{app_name}' already in INSTALLED_APPS")
 
 # ---- Step 4: Setup Django environment to run migrations ----
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'NokoDabo.settings')
 django.setup()
 
 from django.core.management import call_command
