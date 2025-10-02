@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .forms import InventoryForm, StockTransactionForm
+from .forms import InventoryForm
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin, GroupAdmin as DefaultGroupAdmin
 from django.contrib.auth.models import User, Group
-from .models import Bread, Injera, WheatFlour, Yeast, Enhancer, Inventory, StockTransaction
+from .models import Bread, Injera, WheatFlour, Yeast, Enhancer, Inventory
 from branches.models import Branch  # <-- centralized branch
 
 # ------------------- Bakery Models -------------------
@@ -49,17 +49,6 @@ class InventoryAdmin(admin.ModelAdmin):
 
     class Media:
         js = ('bakery/js/inventory.js',)
-
-
-@admin.register(StockTransaction)
-class StockTransactionAdmin(admin.ModelAdmin):
-    form = StockTransactionForm
-    list_display = ('branch', 'product_type', 'product_name', 'transaction_type', 'quantity', 'created_at')
-    list_filter = ('branch', 'product_type', 'transaction_type')
-    search_fields = ('product_name',)
-
-    class Media:
-        js = ("bakery/js/stocktransaction.js",)
 
 
 # ------------------- Superuser Only Admin Mixin -------------------
