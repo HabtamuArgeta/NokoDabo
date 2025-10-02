@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
+# Import centralized Branch model
+from branches.models import Branch as BranchModel
+
 class Bread(models.Model):
     name = models.CharField(max_length=100)
     weight = models.FloatField()        # in grams
@@ -31,15 +34,7 @@ class Enhancer(models.Model):
     description = models.TextField()
     amount_used_per_batch = models.FloatField()
 
-# ---- Branch ----
-class Branch(models.Model):
-    name = models.CharField(max_length=100)
-    location = models.CharField(max_length=200, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
+# -------- Inventory --------
 class Inventory(models.Model):
     PRODUCT_CHOICES = [
         ('bread', 'Bread'),
@@ -49,7 +44,7 @@ class Inventory(models.Model):
         ('enhancer', 'Enhancer'),
     ]
 
-    branch = models.ForeignKey('Branch', on_delete=models.CASCADE)
+    branch = models.ForeignKey(BranchModel, on_delete=models.CASCADE)  # <-- centralized branch
     product_type = models.CharField(max_length=20, choices=PRODUCT_CHOICES)
     product_id = models.PositiveIntegerField()  # Hidden, filled automatically
     product_name = models.CharField(max_length=100, blank=True)
@@ -60,15 +55,14 @@ class Inventory(models.Model):
         return f"{self.product_name} ({self.branch.name}) - {self.quantity}"
 
 
-
-# ---- Stock Transaction ----
+# -------- Stock Transaction --------
 class StockTransaction(models.Model):
     TRANSACTION_TYPES = (
         ('in', 'Stock In'),
         ('out', 'Stock Out'),
     )
 
-    branch = models.ForeignKey("Branch", on_delete=models.CASCADE)  
+    branch = models.ForeignKey(BranchModel, on_delete=models.CASCADE)  # <-- centralized branch
     product_type = models.CharField(
         max_length=20,
         choices=[
@@ -79,7 +73,7 @@ class StockTransaction(models.Model):
             ("enhancer", "Enhancer"),
         ]
     )
-    product_name = models.CharField(max_length=100)  
+    product_name = models.CharField(max_length=100)
     product_id = models.PositiveIntegerField(null=True, blank=True)  # to link with actual product
     quantity = models.PositiveIntegerField()
     transaction_type = models.CharField(max_length=3, choices=TRANSACTION_TYPES)
@@ -92,7 +86,7 @@ class StockTransaction(models.Model):
         """Save transaction and update related inventory safely."""
         super().save(*args, **kwargs)
 
-        from .models import Inventory  
+        from .models import Inventory
 
         inventory, created = Inventory.objects.get_or_create(
             branch=self.branch,
@@ -108,6 +102,3 @@ class StockTransaction(models.Model):
             inventory.quantity -= self.quantity
 
         inventory.save()
-
-
-
