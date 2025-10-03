@@ -13,14 +13,14 @@ class StockTransaction(models.Model):
         choices=[
             ("bread", "Bread"),
             ("injera", "Injera"),
-            ("flour", "Wheat Flour"),
+            ("flour", "Flour"),
             ("yeast", "Yeast"),
             ("enhancer", "Enhancer"),
         ]
     )
     product_name = models.CharField(max_length=100)
     product_id = models.PositiveIntegerField(null=True, blank=True)
-    quantity = models.PositiveIntegerField()
+    quantity = models.FloatField()
     transaction_type = models.CharField(max_length=3, choices=TRANSACTION_TYPES)
     created_at = models.DateTimeField(auto_now_add=True)
 
