@@ -1,12 +1,12 @@
 # bakery/forms.py
 from django import forms
-from .models import Inventory, Bread, Injera, WheatFlour, Yeast, Enhancer
+from .models import Inventory, Bread, Injera, Flour, Yeast, Enhancer
 from branches.models import Branch  # <-- use centralized Branch
 
 MODEL_MAP = {
     'bread': Bread,
     'injera': Injera,
-    'flour': WheatFlour,
+    'flour': Flour,
     'yeast': Yeast,
     'enhancer': Enhancer,
 }
@@ -40,6 +40,14 @@ class InventoryForm(forms.ModelForm):
             self.fields['product_choice'].choices = choices
             if self.instance and getattr(self.instance, 'product_id', None):
                 self.fields['product_choice'].initial = str(self.instance.product_id)
+
+        # ------------------- Quantity Label Customization -------------------
+        if product_type in ['bread', 'injera']:
+            self.fields['quantity'].label = "Quantity (Unit)"
+        elif product_type in ['flour', 'yeast', 'enhancer']:
+            self.fields['quantity'].label = "Quantity (KG)"
+        else:
+            self.fields['quantity'].label = "Quantity"
 
     def clean_product_choice(self):
         val = self.cleaned_data.get('product_choice')
