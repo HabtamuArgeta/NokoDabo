@@ -1,52 +1,77 @@
 from django.db import models
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
-
-# Import centralized Branch model
 from branches.models import Branch as BranchModel
 
+# ------------------- Bakery Products -------------------
 class Bread(models.Model):
     name = models.CharField(max_length=100)
-    weight = models.FloatField()        # in grams
-    price = models.DecimalField(max_digits=8, decimal_places=2)
-    baked_at = models.DateTimeField(auto_now_add=True)
+    flour_kg = models.FloatField()  # flour in kg
+    yeast_kg = models.FloatField()  # yeast in kg
+    enhancer_kg = models.FloatField()  # enhancer in kg
+    water_birr = models.DecimalField(max_digits=8, decimal_places=2)  # water cost
+    electricity_birr = models.DecimalField(max_digits=8, decimal_places=2)  # electricity cost
+    selling_price = models.DecimalField(max_digits=8, decimal_places=2)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
 
 class Injera(models.Model):
-    batch_code = models.CharField(max_length=50)
-    diameter = models.FloatField()      # in cm
-    quantity = models.IntegerField()
-    price = models.DecimalField(max_digits=8, decimal_places=2)
-    fermented_days = models.IntegerField()
+    name = models.CharField(max_length=100)
+    flour_kg = models.FloatField()  # flour in kg
+    yeast_kg = models.FloatField()  # yeast in kg
+    water_birr = models.DecimalField(max_digits=8, decimal_places=2)  # water cost
+    electricity_birr = models.DecimalField(max_digits=8, decimal_places=2)  # electricity cost
+    selling_price = models.DecimalField(max_digits=8, decimal_places=2)
+    description = models.TextField(blank=True, null=True)
 
-class WheatFlour(models.Model):
-    supplier = models.CharField(max_length=100)
-    package_size = models.FloatField()  # in kg
-    stock_kg = models.FloatField()
-    cost_per_kg = models.DecimalField(max_digits=8, decimal_places=2)
+    def __str__(self):
+        return self.name
 
-class Yeast(models.Model):
-    brand = models.CharField(max_length=100)
-    package_weight = models.FloatField() # in grams
-    stock_units = models.IntegerField()
 
 class Enhancer(models.Model):
-    type = models.CharField(max_length=100)
-    description = models.TextField()
-    amount_used_per_batch = models.FloatField()
+    name = models.CharField(max_length=100)
+    brand = models.CharField(max_length=100)
+    cost_per_kg = models.DecimalField(max_digits=8, decimal_places=2)
+    description = models.TextField(blank=True, null=True)
 
-# -------- Inventory --------
+    def __str__(self):
+        return self.name
+
+
+class Yeast(models.Model):
+    name = models.CharField(max_length=100)
+    brand = models.CharField(max_length=100)
+    cost_per_kg = models.DecimalField(max_digits=8, decimal_places=2)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Flour(models.Model):  # Renamed from WheatFlour
+    name = models.CharField(max_length=100)
+    brand = models.CharField(max_length=100)
+    cost_per_kg = models.DecimalField(max_digits=8, decimal_places=2)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+# ------------------- Inventory -------------------
 class Inventory(models.Model):
     PRODUCT_CHOICES = [
         ('bread', 'Bread'),
         ('injera', 'Injera'),
-        ('flour', 'Wheat Flour'),
+        ('flour', 'Flour'),      # updated from Wheat Flour
         ('yeast', 'Yeast'),
         ('enhancer', 'Enhancer'),
     ]
 
-    branch = models.ForeignKey(BranchModel, on_delete=models.CASCADE)  # <-- centralized branch
+    branch = models.ForeignKey(BranchModel, on_delete=models.CASCADE)
     product_type = models.CharField(max_length=20, choices=PRODUCT_CHOICES)
-    product_id = models.PositiveIntegerField()  # Hidden, filled automatically
+    product_id = models.PositiveIntegerField()
     product_name = models.CharField(max_length=100, blank=True)
     quantity = models.FloatField(default=0)
     last_updated = models.DateTimeField(auto_now=True)
