@@ -2,50 +2,58 @@ from django.contrib import admin
 from .forms import InventoryForm
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin, GroupAdmin as DefaultGroupAdmin
 from django.contrib.auth.models import User, Group
-from .models import Bread, Injera, WheatFlour, Yeast, Enhancer, Inventory
-from branches.models import Branch  # <-- centralized branch
+from .models import Bread, Injera, Flour, Yeast, Enhancer, Inventory   # ✅ updated WheatFlour -> Flour
+from branches.models import Branch  # centralized branch
 
-# ------------------- Bakery Models -------------------
+# ------------------- Bakery Products Admin -------------------
 @admin.register(Bread)
 class BreadAdmin(admin.ModelAdmin):
-    list_display = ("name", "weight", "price", "baked_at")
+    list_display = ("name", "flour_kg", "yeast_kg", "enhancer_kg", "water_birr", "electricity_birr", "selling_price","description")
     search_fields = ("name",)
-    list_filter = ("baked_at",)
 
 
 @admin.register(Injera)
 class InjeraAdmin(admin.ModelAdmin):
-    list_display = ("batch_code", "diameter", "quantity", "price", "fermented_days")
-    search_fields = ("batch_code",)
-    list_filter = ("fermented_days",)
+    list_display = ("name", "flour_kg", "yeast_kg", "water_birr", "electricity_birr", "selling_price","description")
+    search_fields = ("name",)
 
 
-@admin.register(WheatFlour)
-class WheatFlourAdmin(admin.ModelAdmin):
-    list_display = ("supplier", "package_size", "stock_kg", "cost_per_kg")
-    search_fields = ("supplier",)
-    list_filter = ("supplier",)
+@admin.register(Flour)   # ✅ renamed from WheatFlour
+class FlourAdmin(admin.ModelAdmin):
+    list_display = ("name", "brand", "cost_per_kg", "description")
+    search_fields = ("name", "brand")
 
 
 @admin.register(Yeast)
 class YeastAdmin(admin.ModelAdmin):
-    list_display = ("brand", "package_weight", "stock_units")
-    search_fields = ("brand",)
+    list_display = ("name", "brand", "cost_per_kg", "description")
+    search_fields = ("name", "brand")
 
 
 @admin.register(Enhancer)
 class EnhancerAdmin(admin.ModelAdmin):
-    list_display = ("type", "description", "amount_used_per_batch")
-    search_fields = ("type",)
+    list_display = ("name", "brand", "cost_per_kg", "description")
+    search_fields = ("name", "brand")
 
 
-# ------------------- Inventory & StockTransaction -------------------
+# ------------------- Inventory Admin -------------------
 @admin.register(Inventory)
 class InventoryAdmin(admin.ModelAdmin):
     form = InventoryForm
-    list_display = ('branch', 'product_type', 'product_name', 'quantity', 'last_updated')
+
+    def quantity_with_unit(self, obj):
+        """Display quantity with appropriate units."""
+        if obj.product_type in ['bread', 'injera']:
+            return f"{obj.quantity} unit"
+        elif obj.product_type in ['flour', 'yeast', 'enhancer']:
+            return f"{obj.quantity} kg"
+        return obj.quantity
+
+    quantity_with_unit.short_description = "Quantity"
+
+    list_display = ('branch', 'product_type', 'product_name', 'quantity_with_unit', 'last_updated')
     list_filter = ('branch', 'product_type', 'product_name')
-    search_fields = ('product_name', )
+    search_fields = ('product_name',)
 
     class Media:
         js = ('bakery/js/inventory.js',)
@@ -102,7 +110,7 @@ class CustomUserAdmin(SuperuserOnlyAdminMixin, DefaultUserAdmin):
         return qs
 
 
-# ------------------- Register User & Group with restrictions -------------------
+# ------------------- Register User & Group with Restrictions -------------------
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
