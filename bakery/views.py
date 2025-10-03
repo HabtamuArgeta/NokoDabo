@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
-from .models import Bread, Injera, WheatFlour, Yeast, Enhancer
+from .models import Bread, Injera, Flour, Yeast, Enhancer
 
 def home(request):
     return render(request, "home.html")
@@ -15,7 +15,7 @@ def get_products(request):
     elif product_type == "injera":
         products = list(Injera.objects.values("id", "name"))
     elif product_type == "flour":
-        products = list(WheatFlour.objects.values("id", "name"))
+        products = list(Flour.objects.values("id", "name"))
     elif product_type == "yeast":
         products = list(Yeast.objects.values("id", "name"))
     elif product_type == "enhancer":
