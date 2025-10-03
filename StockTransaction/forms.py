@@ -1,12 +1,12 @@
 from django import forms
 from .models import StockTransaction
 from branches.models import Branch
-from bakery.models import Bread, Injera, WheatFlour, Yeast, Enhancer
+from bakery.models import Bread, Injera, Flour, Yeast, Enhancer
 
 MODEL_MAP = {
     'bread': Bread,
     'injera': Injera,
-    'flour': WheatFlour,
+    'flour': Flour,
     'yeast': Yeast,
     'enhancer': Enhancer,
 }
