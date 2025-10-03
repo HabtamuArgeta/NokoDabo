@@ -33,17 +33,39 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    // When the product type changes, fetch names
+    // ------------------- Quantity Label Logic -------------------
+    function updateQuantityLabel() {
+        // Use a robust selector to find the label
+        let quantityInput = document.getElementById('id_quantity');
+        if (!quantityInput) return;
+
+        let quantityLabel = quantityInput.closest('.form-row')?.querySelector('label');
+        if (!quantityLabel) return;
+
+        const value = productTypeSelect.value;
+        if (value === 'bread' || value === 'injera') {
+            quantityLabel.textContent = 'Quantity (Unit)';
+        } else if (value === 'flour' || value === 'yeast' || value === 'enhancer') {
+            quantityLabel.textContent = 'Quantity (KG)';
+        } else {
+            quantityLabel.textContent = 'Quantity';
+        }
+    }
+
+    // ------------------- Event Listeners -------------------
+    // Update quantity label on page load
+    updateQuantityLabel();
+
+    // Update quantity label when product type changes
     productTypeSelect.addEventListener('change', function () {
         loadProducts(this.value, null);
+        updateQuantityLabel();
     });
 
-    // If the form was rendered with a product_type (edit page), auto-load names
+    // If the form has an initial type (edit page), load products
     const initialType = productTypeSelect.value;
-    // If server-side form populated choices, we don't need AJAX; but loading again is safe.
+    const initialSelected = productChoiceSelect.value || null;
     if (initialType) {
-        // try to read initial selected id from the form's hidden data set by Django form initial
-        const initialSelected = document.getElementById("id_product_choice") ? document.getElementById("id_product_choice").value : null;
         loadProducts(initialType, initialSelected);
     }
 });
