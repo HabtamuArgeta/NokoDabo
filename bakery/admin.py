@@ -2,8 +2,8 @@ from django.contrib import admin
 from .forms import InventoryForm
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin, GroupAdmin as DefaultGroupAdmin
 from django.contrib.auth.models import User, Group
-from .models import Bread, Injera, Flour, Yeast, Enhancer, Inventory   # ✅ updated WheatFlour -> Flour
-from branches.models import Branch  # centralized branch
+from .models import Bread, Injera, Flour, Yeast, Enhancer, Inventory
+from branches.models import Branch, UserBranch
 
 # ------------------- Bakery Products Admin -------------------
 @admin.register(Bread)
@@ -18,7 +18,7 @@ class InjeraAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
 
-@admin.register(Flour)   # ✅ renamed from WheatFlour
+@admin.register(Flour)
 class FlourAdmin(admin.ModelAdmin):
     list_display = ("name", "brand", "cost_per_kg", "description")
     search_fields = ("name", "brand")
@@ -77,8 +77,34 @@ class SuperuserOnlyAdminMixin:
         return request.user.is_superuser
 
 
+# ------------------- User Branch Inline -------------------
+class UserBranchInline(admin.StackedInline):
+    model = UserBranch
+    can_delete = False
+    verbose_name = "Branch"
+    verbose_name_plural = "Branch"
+    fk_name = "user"
+    extra = 0
+
+
 # ------------------- Custom User Admin -------------------
 class CustomUserAdmin(SuperuserOnlyAdminMixin, DefaultUserAdmin):
+    inlines = (UserBranchInline,)   # attach branch inline
+
+    def branch(self, obj):
+        """Show branch in user list page."""
+        try:
+            return obj.branch_assignment.branch.name if obj.branch_assignment and obj.branch_assignment.branch else "-"
+        except Exception:
+            return "-"
+    branch.short_description = "Branch"
+
+    # Show branch column in list_display
+    list_display = DefaultUserAdmin.list_display + ("branch",)
+
+    # Preserve all default filters and add branch filter
+    list_filter = DefaultUserAdmin.list_filter + ("branch_assignment__branch",)
+
     def get_readonly_fields(self, request, obj=None):
         readonly = list(super().get_readonly_fields(request, obj))
         if not request.user.is_superuser:
